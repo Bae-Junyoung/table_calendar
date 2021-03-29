@@ -6,14 +6,14 @@ import 'package:kakao_flutter_sdk/auth.dart';
 import 'package:kakao_flutter_sdk/user.dart';
 import 'package:kakao_flutter_sdk/common.dart';
 
-class LoginScreen extends StatefulWidget {
+class KakaoLoginScreen extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
     return _LoginState();
   }
 }
 
-class _LoginState extends State<LoginScreen> {
+class _LoginState extends State<KakaoLoginScreen> {
   @override
   void initState() {
     super.initState();

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:table_calendar_example/page/cafe_information_setting_page.dart';
 import 'package:table_calendar_example/tap_drawer.dart';
 
-import 'calendar_home.dart';
+import 'calendar_page.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key, this.title}) : super(key: key);
@@ -41,27 +42,22 @@ class _HomePageState extends State<HomePage> {
                     color: Colors.white,
                   ),
                   '예약현황조회',
-                  CalendarHome(
-                    title: 'doljago',
-                  )),
+                  CalendarHome()),
               _buildCards(
                   Icon(Icons.settings, size: 80, color: Colors.white),
                   '카페정보설정',
-                  CalendarHome(
-                    title: 'doljago',
-                  )),
+                  // TODO: 카페정보설정
+                  CafeInformationSetting()),
               _buildCards(
                   Icon(Icons.dashboard, size: 80, color: Colors.white),
                   '대시보드',
-                  CalendarHome(
-                    title: 'doljago',
-                  )),
+                  // TODO: 대시보드
+                  CalendarHome()),
               _buildCards(
                   Icon(Icons.rate_review, size: 80, color: Colors.white),
                   '리뷰관리',
-                  CalendarHome(
-                    title: 'doljago',
-                  )),
+                  // TODO: 리뷰관리
+                  CalendarHome()),
             ],
           ),
         ),
@@ -98,7 +94,7 @@ class _HomePageState extends State<HomePage> {
                 _name,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             )
           ],

@@ -1,58 +1,30 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:table_calendar_example/controller/reservation_controller.dart';
 import 'package:table_calendar_example/tap_drawer.dart';
-import 'package:table_calendar_example/timetable.dart';
+import 'file:///C:/work/agit/table_calendar/example/lib/page/timetable_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:convert' show utf8;
+import 'package:get/get.dart';
+import '../model/reservation_information.dart';
 
-import 'Response.dart';
-
-String responseString = '''
-{
-    "status": "ok",
-    "message": "Event Is Found",
-    "data": [
-              {
-                  "reserv_num": 11,
-                  "created_at": "2021-03-03T16:17:30.406796+09:00",
-                  "people_num": 2,
-                  "table_num": 4,
-                  "start_time": "2021-03-04T14:15:00+09:00",
-                  "end_time": "2021-03-04T16:00:00+09:00",
-                  "message": "가나다라마바사아"
-              },
-              {
-                  "reserv_num": 13,
-                  "created_at": "2021-03-03T16:18:09.296605+09:00",
-                  "people_num": 2,
-                  "table_num": 1,
-                  "start_time": "2021-03-08T15:15:00+09:00",
-                  "end_time": "2021-03-08T16:30:00+09:00",
-                  "message": "자차카타파하"
-              },
-              {
-                  "reserv_num": 17,
-                  "created_at": "2021-03-04T16:11:00.296605+09:00",
-                  "people_num": 3,
-                  "table_num": 4,
-                  "start_time": "2021-03-08T17:00:00+09:00",
-                  "end_time": "2021-03-08T18:30:00+09:00",
-                  "message": "가가가가가가"
-              },
-              {
-                  "reserv_num": 19,
-                  "created_at": "2021-03-04T16:11:00.296605+09:00",
-                  "people_num": 2,
-                  "table_num": 2,
-                  "start_time": "2021-03-11T17:00:00+09:00",
-                  "end_time": "2021-03-11T18:30:00+09:00",
-                  "message": "나나나나나나"
-              }
-            ]
-}
-    ''';
+// [{reserv_num: 13, created_at: 2021-03-03T16:18:09.296605+09:00, people_num: 2,
+// table_num: 1, start_time: 2021-03-08T15:15:00+09:00, end_time: 2021-03-08T16:30:00+09:00,
+// message: 자차카타파하},
+// {reserv_num: 17, created_at: 2021-03-04T17:13:49.988574+09:00, people_num: 3,
+// table_num: 4, start_time: 2021-03-08T17:00:00+09:00, end_time: 2021-03-08T18:30:00+09:00,
+// message: 가가가가가가가가가가가},
+// {reserv_num: 19, created_at: 2021-03-04T17:14:47.582332+09:00, people_num: 2,
+// table_num: 2, start_time: 2021-03-11T17:00:00+09:00, end_time: 2021-03-11T18:30:00+09:00,
+// message: 나나나나나나나나나나}, {reserv_num: 23, created_at: 2021-03-05T15:12:37.273852+09:00,
+// people_num: 4, table_num: 1, start_time: 2021-03-17T14:15:00+09:00,
+// end_time: 2021-03-17T16:00:00+09:00, message: qwesdfxcghjhnbgfd},
+// {reserv_num: 29, created_at: 2021-03-15T19:49:51.600281+09:00, people_num: 1,
+// table_num: 1, start_time: 2021-03-08T19:00:00+09:00, end_time: 2021-03-08T19:30:00+09:00,
+// message: abcd}]
 
 final Map<DateTime, List> holidays = {
   DateTime(2020, 1, 1): ['New Year\'s Day'],
@@ -61,11 +33,10 @@ final Map<DateTime, List> holidays = {
   DateTime(2020, 4, 21): ['Easter Sunday'],
   DateTime(2020, 4, 22): ['Easter Monday'],
 };
+ReservationController reservationController = Get.put(ReservationController());
 
 class CalendarHome extends StatefulWidget {
-  CalendarHome({Key key, this.title}) : super(key: key);
-
-  final String title;
+  CalendarHome({Key key}) : super(key: key);
 
   @override
   _CalendarHomeState createState() => _CalendarHomeState();
@@ -73,11 +44,8 @@ class CalendarHome extends StatefulWidget {
 
 class _CalendarHomeState extends State<CalendarHome>
     with TickerProviderStateMixin {
-  bool _selected = false;
-  DateTime _selectedDay = DateTime.now();
   Map<DateTime, List> _toDayEvents;
   Map<DateTime, List> _events;
-  List _selectedEvents;
   AnimationController _animationController;
   CalendarController _calendarController;
 
@@ -89,7 +57,7 @@ class _CalendarHomeState extends State<CalendarHome>
       final response = await http.get(
         'http://10.0.2.2:8000/reservation/cafe/',
       );
-      responseString = '''{"status": "ok",
+      String responseString = '''{"status": "ok",
     "message": "Event Is Found",
     "data": ''' +
           utf8.decode(response.bodyBytes) +
@@ -115,19 +83,19 @@ class _CalendarHomeState extends State<CalendarHome>
     Map<DateTime, List> mapFetch = {};
     List<Datum> event = await getAllEvent();
     for (int i = 0; i < event.length; i++) {
-      var createTime = DateTime(event[i].start_time.year,
-          event[i].start_time.month, event[i].start_time.day);
+      var createTime = DateTime(event[i].startTime.year,
+          event[i].startTime.month, event[i].startTime.day);
       var original = mapFetch[createTime];
       if (original == null) {
         // print("null");
         mapFetch[createTime] = [
           {
-            'people_num': event[i].people_num,
-            'table_num': event[i].table_num,
+            'people_num': event[i].peopleNum,
+            'table_num': event[i].tableNum,
             'start_time':
-                '${event[i].start_time.hour.toString().padLeft(2, '0')}:${event[i].start_time.minute.toString().padLeft(2, '0')}:${event[i].start_time.second.toString().padLeft(2, '0')}',
+                '${event[i].startTime.hour.toString().padLeft(2, '0')}:${event[i].startTime.minute.toString().padLeft(2, '0')}:${event[i].startTime.second.toString().padLeft(2, '0')}',
             'end_time':
-                '${event[i].end_time.hour.toString().padLeft(2, '0')}:${event[i].end_time.minute.toString().padLeft(2, '0')}:${event[i].end_time.second.toString().padLeft(2, '0')}',
+                '${event[i].endTime.hour.toString().padLeft(2, '0')}:${event[i].endTime.minute.toString().padLeft(2, '0')}:${event[i].endTime.second.toString().padLeft(2, '0')}',
             'message': event[i].message,
           }
         ];
@@ -136,12 +104,12 @@ class _CalendarHomeState extends State<CalendarHome>
         mapFetch[createTime] = List.from(original)
           ..addAll([
             {
-              'people_num': event[i].people_num,
-              'table_num': event[i].table_num,
+              'people_num': event[i].peopleNum,
+              'table_num': event[i].tableNum,
               'start_time':
-                  '${event[i].start_time.hour.toString().padLeft(2, '0')}:${event[i].start_time.minute.toString().padLeft(2, '0')}:${event[i].start_time.second.toString().padLeft(2, '0')}',
+                  '${event[i].startTime.hour.toString().padLeft(2, '0')}:${event[i].startTime.minute.toString().padLeft(2, '0')}:${event[i].startTime.second.toString().padLeft(2, '0')}',
               'end_time':
-                  '${event[i].end_time.hour.toString().padLeft(2, '0')}:${event[i].end_time.minute.toString().padLeft(2, '0')}:${event[i].end_time.second.toString().padLeft(2, '0')}',
+                  '${event[i].endTime.hour.toString().padLeft(2, '0')}:${event[i].endTime.minute.toString().padLeft(2, '0')}:${event[i].endTime.second.toString().padLeft(2, '0')}',
               'message': event[i].message,
             }
           ]);
@@ -153,11 +121,6 @@ class _CalendarHomeState extends State<CalendarHome>
 
   @override
   void initState() {
-    // super.initState();
-    final _toDay = DateTime.now();
-
-    _selectedEvents = [];
-
     _calendarController = CalendarController();
 
     _animationController = AnimationController(
@@ -168,10 +131,10 @@ class _CalendarHomeState extends State<CalendarHome>
     _animationController.forward();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       getTask1().then((val) => setState(() {
-            _events = val;
+            reservationController.setEvents = val;
           }));
-      //print( ' ${_events.toString()} ');
     });
+    reservationController.setSelectedEvents = [];
     super.initState();
   }
 
@@ -184,9 +147,8 @@ class _CalendarHomeState extends State<CalendarHome>
 
   void _onDaySelected(DateTime day, List events, List holidays) {
     print('CALLBACK: _onDaySelected');
-    print(day);
     setState(() {
-      _selectedEvents = events;
+      reservationController.setSelectedEvents = events;
     });
   }
 
@@ -204,7 +166,7 @@ class _CalendarHomeState extends State<CalendarHome>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text('doljago'),
         actions: <Widget>[
           IconButton(
               icon: Icon(Icons.home),
@@ -221,7 +183,9 @@ class _CalendarHomeState extends State<CalendarHome>
           _buildTableCalendarWithBuilders(),
           // _buildTableCalendarWithBuilders(),
           const SizedBox(height: 8.0),
-          _buildButtons(_selectedDay),
+          GetBuilder<ReservationController>(
+              init: reservationController,
+              builder: (_) => _buildButtons(_.selectedDay)),
           const SizedBox(height: 8.0),
           Expanded(child: _buildEventList()),
         ],
@@ -235,7 +199,7 @@ class _CalendarHomeState extends State<CalendarHome>
     return TableCalendar(
       locale: 'ko-KR',
       calendarController: _calendarController,
-      events: _events,
+      events: reservationController.events,
       holidays: holidays,
       initialCalendarFormat: CalendarFormat.month,
       formatAnimation: FormatAnimation.slide,
@@ -321,7 +285,7 @@ class _CalendarHomeState extends State<CalendarHome>
       onDaySelected: (date, events, holidays) {
         _onDaySelected(date, events, holidays);
         _animationController.forward(from: 0.0);
-        _selectedDay = date;
+        reservationController.setSelectedDay = date;
       },
       onVisibleDaysChanged: _onVisibleDaysChanged,
       onCalendarCreated: _onCalendarCreated,
@@ -393,35 +357,36 @@ class _CalendarHomeState extends State<CalendarHome>
               DateTime(dateTime.year, dateTime.month, dateTime.day),
               runCallback: true,
             );
-            // print(_calendarController.focusedDay.runtimeType);
-            // print(_selectedEvents[0]['start_time'].runtimeType);
-            print(_selectedEvents);
             Navigator.push(
               context,
-              MaterialPageRoute(
-                  builder: (context) => TimeTable(date: _calendarController.focusedDay, events: _selectedEvents)),
+              MaterialPageRoute(builder: (context) => TimeTable()),
             );
           },
         ),
         SizedBox(
           width: 8,
         ),
-        RaisedButton(
-          color: Colors.blue[400],
-          elevation: 8,
-          textColor: Colors.white,
-          child: _selected
-              ? Text(
-                  '시간순',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                )
-              : Text('예약순', style: TextStyle(fontWeight: FontWeight.bold)),
-          onPressed: () {
-            setState(() {
-              _selected = !_selected;
-            });
-          },
-        ),
+        GetBuilder<ReservationController>(
+            init: reservationController,
+            builder: (_) {
+              return RaisedButton(
+                color: Colors.blue[400],
+                elevation: 8,
+                textColor: Colors.white,
+                child: _.ordering
+                    ? Text(
+                        '시간순',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      )
+                    : Text('예약순',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                onPressed: () {
+                  setState(() {
+                    _.orderingToggle();
+                  });
+                },
+              );
+            })
       ],
     );
   }
@@ -437,7 +402,7 @@ class _CalendarHomeState extends State<CalendarHome>
 
   Widget _buildEventList() {
     return ListView(
-      children: _selectedEvents
+      children: reservationController.selectedEvents
           .map((event) => Container(
                 decoration: BoxDecoration(
                   border: Border.all(width: 0.8),

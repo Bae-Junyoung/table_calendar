@@ -5,12 +5,12 @@ import 'package:kakao_flutter_sdk/auth.dart';
 // import kakao sdk
 import 'package:kakao_flutter_sdk/user.dart';
 
-class LoginResult extends StatefulWidget {
+class KakaoLoginResult extends StatefulWidget {
   @override
-  _LoginResultState createState() => _LoginResultState();
+  _KakaoLoginResultState createState() => _KakaoLoginResultState();
 }
 
-class _LoginResultState extends State<LoginResult> {
+class _KakaoLoginResultState extends State<KakaoLoginResult> {
   @override
   void dispose() {
     super.dispose();

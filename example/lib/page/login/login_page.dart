@@ -13,8 +13,9 @@
 // limitations under the License.
 
 import 'package:flutter/material.dart';
-import 'colors.dart';
+import '../../ui/colors.dart';
 import 'kakao_login.dart';
+import 'naver_login.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -43,7 +44,6 @@ class _LoginPageState extends State<LoginPage> {
     });
   }
 
-  // TODO: Add text editing controllers (101)
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,7 +51,7 @@ class _LoginPageState extends State<LoginPage> {
         child: ListView(
           padding: EdgeInsets.symmetric(horizontal: 48.0),
           children: <Widget>[
-            SizedBox(height: 80.0),
+            SizedBox(height: 60.0),
             Column(
               children: <Widget>[
                 Icon(
@@ -65,7 +65,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ],
             ),
-            SizedBox(height: 120.0),
+            SizedBox(height: 60.0),
             // [Name]
             TextField(
               controller: _usernameController,
@@ -96,17 +96,27 @@ class _LoginPageState extends State<LoginPage> {
               focusNode: _passwordFocusNode,
               obscureText: true,
             ),
-            // TODO: Wrap Username with AccentColorOverride (103)
-            // TODO: Remove filled: true values (103)
-            // TODO: Wrap Password with AccentColorOverride (103)
-            // TODO: Add TextField widgets (101)
-            // TODO: Add button bar (101)
             ButtonBar(
               children: <Widget>[
                 FlatButton(
                   child: Text(
-                    'CANCEL',
-                    style: TextStyle(color: Colors.black87),
+                    '회원가입',
+                    style: TextStyle(
+                        color: Colors.black87, fontWeight: FontWeight.bold),
+                  ),
+                  shape: BeveledRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(7.0)),
+                  ),
+                  onPressed: () {
+                    // TODO: 회원가입
+                    print('회원가입');
+                  },
+                ),
+                FlatButton(
+                  child: Text(
+                    '취소',
+                    style: TextStyle(
+                        color: Colors.black87, fontWeight: FontWeight.bold),
                   ),
                   shape: BeveledRectangleBorder(
                     borderRadius: BorderRadius.all(Radius.circular(7.0)),
@@ -118,7 +128,10 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 RaisedButton(
                   color: Colors.black87,
-                  child: Text('NEXT'),
+                  child: Text(
+                    '로그인',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   elevation: 8.0,
                   // New code
                   shape: BeveledRectangleBorder(
@@ -137,28 +150,29 @@ class _LoginPageState extends State<LoginPage> {
                   builder: (BuildContext context) => KakaoLoginScreen(),
                 ),
               ),
-              child: Image.asset(
-                  'assets/login_button/kakao_login_medium_wide.png'),
+              child:
+                  makeImage('assets/login_button/kakao_login_medium_wide.png'),
             ),
-            // RaisedButton(
-            //   child: Image.asset('assets/login_button/kakao_login_medium_wide.png',),
-            //   elevation: 8.0, // New code
-            //   shape: BeveledRectangleBorder(
-            //     borderRadius: BorderRadius.all(Radius.circular(7.0)),
-            //   ),
-            //   onPressed: () {
-            //     Navigator.push(
-            //       context,
-            //       MaterialPageRoute(
-            //         builder: (BuildContext context) => KakaoLoginScreen(),
-            //       ),
-            //     );
-            //     // Navigator.pop(context);
-            //   },
-            // ),
+            SizedBox(height: 12,),
+            GestureDetector(
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (BuildContext context) => NaverLoginScreen(),
+                ),
+              ),
+              child: makeImage('assets/login_button/naver_login_green.png'),
+            ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget makeImage(String path) {
+    return Container(
+      child: Image.asset(path, width: 500, height: 50, fit: BoxFit.fill),
+      padding: EdgeInsets.only(left: 2, right: 2, bottom: 1),
     );
   }
 }
